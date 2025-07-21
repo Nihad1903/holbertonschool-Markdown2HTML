@@ -1,14 +1,8 @@
 #!/usr/bin/python3
 import sys
 import os
-def markdownparser():
-    if len(sys.argv) < 3:
-        print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
-        sys.exit(1)
 
-    input_file = sys.argv[1]
-    output_file = sys.argv[2]
-
+def markdownparser(input_file, output_file):
     if not os.path.exists(input_file):
         print(f"Missing {input_file}", file=sys.stderr)
         sys.exit(1)
@@ -20,4 +14,8 @@ def markdownparser():
     sys.exit(0)
 
 if __name__ == "__main__":
-    markdownparser()
+    if len(sys.argv) < 3:
+        print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
+        sys.exit(1)
+
+    markdownparser(sys.argv[1], sys.argv[2])
