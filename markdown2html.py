@@ -13,10 +13,7 @@ def markdownparser():
         print(f"Missing {input_file}", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        with open(output_file, 'w'):
-            pass
-    except Exception:
+    if not os.path.exists(output_file):
         print(f"Missing {output_file}", file=sys.stderr)
         sys.exit(1)
 
