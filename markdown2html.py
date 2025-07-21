@@ -39,7 +39,6 @@ def unordered():
         with open(sys.argv[1], 'r') as file:
             lines = [line for line in file.readlines() if line[0] == "-"]
             li_tags = ""
-            print(lines)
             for line in lines:
                 li_tags += f"\n<li>{line[1:].lstrip().rstrip()}</li>"
             result = f"<ul>{li_tags}\n</ul>"
