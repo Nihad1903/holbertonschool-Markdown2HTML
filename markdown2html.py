@@ -23,7 +23,7 @@ def markdownparser():
 
 
 def headings():
-    with open(sys.argv[2], "w") as output:
+    with open(sys.argv[2], "a") as output:
         with open(sys.argv[1], 'r') as file:
             for line in file:
                 if line.startswith("#"):
@@ -34,6 +34,19 @@ def headings():
                         output.write(new_line + "\n")
 
 
+def unordered():
+    with open(sys.argv[2], "a") as output:
+        with open(sys.argv[1], 'r') as file:
+            lines = [ line for line in file.readlines() if line[0] == "-"]
+            li_tags = ""
+            print(lines)
+            for line in lines:
+                li_tags += f"\n<li>{line[1:].lstrip().rstrip()}</li>"
+            result = f"<ul>{li_tags}\n</ul>"
+            output.write(result)
+        
+
 if __name__ == "__main__":
     # markdownparser()
     headings()
+    unordered()
