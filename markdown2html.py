@@ -1,15 +1,14 @@
 #!/usr/bin/python3
-
 """Converts a Markdown file to an HTML file."""
 
 import sys
 import os
+import re
 
 
 def markdownparser():
     if len(sys.argv) < 3:
-        usage = "Usage: ./markdown2html.py README.md README.html"
-        print(usage, file=sys.stderr)
+        print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
         sys.exit(1)
 
     input_file = sys.argv[1]
@@ -19,33 +18,91 @@ def markdownparser():
         print(f"Missing {input_file}", file=sys.stderr)
         sys.exit(1)
 
-    sys.exit(0)
+    return input_file, output_file
 
 
-def headings():
-    with open(sys.argv[2], "a") as output:
-        with open(sys.argv[1], 'r') as file:
-            for line in file:
-                if line.startswith("#"):
-                    num = len(line) - len(line.lstrip('#'))
-                    if 1 <= num <= 6 and line[num:num+1] == " ":
-                        text = line[num:].strip()
-                        new_line = f"<h{num}>{text}</h{num}>"
-                        output.write(new_line + "\n")
+def parse_heading(line):
+    num = len(line) - len(line.lstrip('#'))
+    if 1 <= num <= 6 and line[num:num+1] == " ":
+        text = line[num:].strip()
+        return f"<h{num}>{text}</h{num}>"
+    return None
 
 
-def unordered():
-    with open(sys.argv[2], "a") as output:
-        with open(sys.argv[1], 'r') as file:
-            lines = [line for line in file.readlines() if line[0] == "-"]
-            li_tags = ""
-            for line in lines:
-                li_tags += f"\n<li>{line[1:].lstrip().rstrip()}</li>"
-            result = f"<ul>{li_tags}\n</ul>"
-            output.write(result)
+def parse_unordered(line, state):
+    if line.startswith("- "):
+        if not state["in_ul"]:
+            state["buffer"].append("<ul>")
+            state["in_ul"] = True
+        item = line[2:].strip()
+        state["buffer"].append(f"<li>{item}</li>")
+        return True
+    else:
+        if state["in_ul"]:
+            state["buffer"].append("</ul>")
+            state["in_ul"] = False
+    return False
+
+
+# Placeholder for future features
+def parse_ordered(line, state):
+    # Future: handle "1. Item" etc.
+    return False
+
+
+def parse_paragraph(line, state):
+    # Future: handle paragraphs
+    return False
+
+
+def parse_line(line, state):
+    stripped = line.strip()
+    if not stripped:
+        if state["in_ul"]:
+            state["buffer"].append("</ul>")
+            state["in_ul"] = False
+        return
+
+    heading = parse_heading(stripped)
+    if heading:
+        if state["in_ul"]:
+            state["buffer"].append("</ul>")
+            state["in_ul"] = False
+        state["buffer"].append(heading)
+        return
+
+    if parse_unordered(stripped, state):
+        return
+
+    if parse_ordered(stripped, state):  # reserved
+        return
+
+    if parse_paragraph(stripped, state):  # reserved
+        return
+
+    # Unknown line — ignore or later handle
+    if state["in_ul"]:
+        state["buffer"].append("</ul>")
+        state["in_ul"] = False
+
+
+def convert_markdown(input_file, output_file):
+    state = {
+        "in_ul": False,
+        "buffer": []
+    }
+
+    with open(input_file, 'r') as file:
+        for line in file:
+            parse_line(line, state)
+
+    if state["in_ul"]:
+        state["buffer"].append("</ul>")
+
+    with open(output_file, 'w') as output:
+        output.write("\n".join(state["buffer"]) + "\n")
 
 
 if __name__ == "__main__":
-    # markdownparser()
-    headings()
-    unordered()
+    input_file, output_file = markdownparser()
+    convert_markdown(input_file, output_file)
