@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import sys
 import os
-def markdownparser(md_name, md_file):
+def markdownparser():
     if len(sys.argv) < 3:
         print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
         sys.exit(1)
@@ -16,4 +16,4 @@ def markdownparser(md_name, md_file):
     sys.exit(1)
 
 if __name__ == "__main__":
-    markdownparser(md_name='test', md_file='test')
+    markdownparser()
