@@ -4,6 +4,8 @@
 
 import sys
 import os
+
+
 def markdownparser():
     if len(sys.argv) < 3:
         print("Usage: ./markdown2html.py README.md README.html", file=sys.stderr)
@@ -18,7 +20,6 @@ def markdownparser():
 
     sys.exit(0)
 
+
 if __name__ == "__main__":
     markdownparser()
-
-    
