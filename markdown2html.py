@@ -26,10 +26,13 @@ def headings():
     with open(sys.argv[2], "w") as output:
         with open(sys.argv[1], 'r') as file:
             for line in file:
-                num = line.count('#')
-                text = line.replace("#", "")[1:-1]
-                new_line = f"<h{num}>{text}</h{num}>"
-                output.write(new_line + "\n")
+                if line.startswith("#"):
+                    num = len(line) - len(line.lstrip('#'))
+                    # Check that it's a valid heading (1–6 #s followed by space)
+                    if 1 <= num <= 6 and line[num:num+1] == " ":
+                        text = line[num:].strip()
+                        new_line = f"<h{num}>{text}</h{num}>"
+                        output.write(new_line + "\n")
 
 
 if __name__ == "__main__":
