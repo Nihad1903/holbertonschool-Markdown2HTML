@@ -23,9 +23,9 @@ def markdownparser():
 
 
 def headings():
-    with open("README.html", "w") as output:
+    with open(sys.argv[2], "w") as output:
         with open(sys.argv[1], 'r') as file:
-            for line in file.readlines():
+            for line in file:
                 num = line.count('#')
                 text = line.replace("#", "")[1:-1]
                 new_line = f"<h{num}>{text}</h{num}>"
