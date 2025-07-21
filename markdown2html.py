@@ -28,7 +28,6 @@ def headings():
             for line in file:
                 if line.startswith("#"):
                     num = len(line) - len(line.lstrip('#'))
-                    # Check that it's a valid heading (1–6 #s followed by space)
                     if 1 <= num <= 6 and line[num:num+1] == " ":
                         text = line[num:].strip()
                         new_line = f"<h{num}>{text}</h{num}>"
