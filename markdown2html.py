@@ -44,7 +44,7 @@ def unordered():
                 li_tags += f"\n<li>{line[1:].lstrip().rstrip()}</li>"
             result = f"<ul>{li_tags}\n</ul>"
             output.write(result)
-        
+
 
 if __name__ == "__main__":
     # markdownparser()
