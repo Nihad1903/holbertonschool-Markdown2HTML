@@ -12,7 +12,6 @@ def main():
     md_file = sys.argv[1]
     html_file = sys.argv[2]
 
-    # Checking if markdown file exists
     if not os.path.isfile(md_file):
         print(f"Missing {md_file}", file=sys.stderr)
         sys.exit(1)
