@@ -8,11 +8,9 @@ import os
 
 def markdownparser():
     if len(sys.argv) < 3:
-        print(
-            "Usage: ./markdown2html.py README.md "
-            "README.html",
-            file=sys.stderr
-        )
+        usage = "Usage: ./markdown2html.py README.md README.html"
+        print(usage, file=sys.stderr)
+        sys.exit(1)
 
     input_file = sys.argv[1]
     output_file = sys.argv[2]
