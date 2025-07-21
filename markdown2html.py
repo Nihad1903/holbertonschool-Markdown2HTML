@@ -37,7 +37,7 @@ def headings():
 def unordered():
     with open(sys.argv[2], "a") as output:
         with open(sys.argv[1], 'r') as file:
-            lines = [ line for line in file.readlines() if line[0] == "-"]
+            lines = [line for line in file.readlines() if line[0] == "-"]
             li_tags = ""
             print(lines)
             for line in lines:
