@@ -47,7 +47,17 @@ def parse_unordered(line, state):
 
 # Placeholder for future features
 def parse_ordered(line, state):
-    # Future: handle "1. Item" etc.
+    if line.startswith("* "):
+        if not state["in_ol"]:
+            state["buffer"].append("<ol>")
+            state["in_ol"] = True
+        item = line[2:].strip()
+        state["buffer"].append(f"<li>{item}</li>")
+        return True
+    else:
+        if state["in_ol"]:
+            state["buffer"].append("</ol>")
+            state["in_ol"] = False
     return False
 
 
@@ -62,6 +72,10 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
+            
+        if state["in_ol"]:
+            state["buffer"].append("</ol>")
+            state["in_ol"] = False
         return
 
     heading = parse_heading(stripped)
@@ -69,6 +83,10 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
+        
+        if state["in_ol"]:
+            state["buffer"].append("</ol>")
+            state["in_ol"] = False
         state["buffer"].append(heading)
         return
 
@@ -86,11 +104,16 @@ def parse_line(line, state):
         state["buffer"].append("</ul>")
         state["in_ul"] = False
 
+    if state["in_ol"]:
+        state["buffer"].append("</ol>")
+        state["in_ol"] = False
+    
 
 def convert_markdown(input_file, output_file):
     state = {
         "in_ul": False,
-        "buffer": []
+        "buffer": [],
+        "in_ol": False
     }
 
     with open(input_file, 'r') as file:
@@ -99,6 +122,9 @@ def convert_markdown(input_file, output_file):
 
     if state["in_ul"]:
         state["buffer"].append("</ul>")
+        
+    if state["in_ol"]:
+        state["buffer"].append("</ol>")
 
     with open(output_file, 'w') as output:
         output.write("\n".join(state["buffer"]) + "\n")
