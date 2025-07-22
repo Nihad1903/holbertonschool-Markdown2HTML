@@ -72,7 +72,7 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
-            
+ 
         if state["in_ol"]:
             state["buffer"].append("</ol>")
             state["in_ol"] = False
@@ -83,7 +83,7 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
-        
+
         if state["in_ol"]:
             state["buffer"].append("</ol>")
             state["in_ol"] = False
@@ -107,7 +107,7 @@ def parse_line(line, state):
     if state["in_ol"]:
         state["buffer"].append("</ol>")
         state["in_ol"] = False
-    
+
 
 def convert_markdown(input_file, output_file):
     state = {
@@ -122,7 +122,7 @@ def convert_markdown(input_file, output_file):
 
     if state["in_ul"]:
         state["buffer"].append("</ul>")
-        
+
     if state["in_ol"]:
         state["buffer"].append("</ol>")
 
