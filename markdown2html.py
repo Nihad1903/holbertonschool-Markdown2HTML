@@ -72,7 +72,7 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
- 
+
         if state["in_ol"]:
             state["buffer"].append("</ol>")
             state["in_ol"] = False
