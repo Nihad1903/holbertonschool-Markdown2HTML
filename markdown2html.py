@@ -62,20 +62,33 @@ def parse_ordered(line, state):
 
 
 def parse_paragraph(line, state):
-    # Future: handle paragraphs
-    return False
+    # If it's a potential paragraph line (not a heading or list)
+    state["paragraph_lines"].append(line)
+    return True
+
+
+def close_paragraph(state):
+    if state["paragraph_lines"]:
+        # Join lines with <br /> if more than one line
+        lines = [line.strip() for line in state["paragraph_lines"]]
+        joined = "<br />\n    ".join(lines)
+        paragraph = f"<p>\n    {joined}\n</p>"
+        state["buffer"].append(paragraph)
+        state["paragraph_lines"] = []
 
 
 def parse_line(line, state):
     stripped = line.strip()
+
+    # Handle empty lines: close blocks and paragraphs
     if not stripped:
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
-
         if state["in_ol"]:
             state["buffer"].append("</ol>")
             state["in_ol"] = False
+        close_paragraph(state)
         return
 
     heading = parse_heading(stripped)
@@ -83,48 +96,43 @@ def parse_line(line, state):
         if state["in_ul"]:
             state["buffer"].append("</ul>")
             state["in_ul"] = False
-
         if state["in_ol"]:
             state["buffer"].append("</ol>")
             state["in_ol"] = False
+        close_paragraph(state)
         state["buffer"].append(heading)
         return
 
     if parse_unordered(stripped, state):
+        close_paragraph(state)
         return
 
-    if parse_ordered(stripped, state):  # reserved
+    if parse_ordered(stripped, state):
+        close_paragraph(state)
         return
 
-    if parse_paragraph(stripped, state):  # reserved
-        return
-
-    # Unknown line — ignore or later handle
-    if state["in_ul"]:
-        state["buffer"].append("</ul>")
-        state["in_ul"] = False
-
-    if state["in_ol"]:
-        state["buffer"].append("</ol>")
-        state["in_ol"] = False
+    # If not any known syntax, assume it's paragraph content
+    parse_paragraph(stripped, state)
 
 
 def convert_markdown(input_file, output_file):
     state = {
         "in_ul": False,
-        "buffer": [],
-        "in_ol": False
+        "in_ol": False,
+        "paragraph_lines": [],
+        "buffer": []
     }
 
     with open(input_file, 'r') as file:
         for line in file:
             parse_line(line, state)
 
+    # Close any remaining open blocks
     if state["in_ul"]:
         state["buffer"].append("</ul>")
-
     if state["in_ol"]:
         state["buffer"].append("</ol>")
+    close_paragraph(state)
 
     with open(output_file, 'w') as output:
         output.write("\n".join(state["buffer"]) + "\n")
