@@ -4,7 +4,7 @@
 import sys
 import os
 import re
-
+import hashlib
 
 def markdownparser():
     if len(sys.argv) < 3:
@@ -64,7 +64,6 @@ def parse_ordered(line, state):
 
 
 def parse_paragraph(line, state):
-    # If it's a potential paragraph line (not a heading or list)
     state["paragraph_lines"].append(line)
     return True
 
@@ -82,7 +81,6 @@ def close_paragraph(state):
 def parse_line(line, state):
     stripped = line.strip()
 
-    # Handle empty lines: close blocks and paragraphs
     if not stripped:
         if state["in_ul"]:
             state["buffer"].append("</ul>")
@@ -113,15 +111,26 @@ def parse_line(line, state):
         close_paragraph(state)
         return
 
-    # If not any known syntax, assume it's paragraph content
     parse_paragraph(stripped, state)
 
 
 def apply_inline_formatting(text):
-    # Apply bold (**text**) first
     text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
-    # Apply emphasis (__text__)
+    
     text = re.sub(r'__(.+?)__', r'<em>\1</em>', text)
+    
+    def md5_replacer(match):
+        content = match.group(1)
+        return hashlib.md5(content.encode()).hexdigest()
+    
+    text = re.sub(r'\[\[(.+?)\]\]', md5_replacer, text)
+
+    def remove_c(match):
+        content = match.group(1)
+        return re.sub(r'[cC]', '', content)
+    
+    text = re.sub(r'\(\((.+?)\)\)', remove_c, text)
+
     return text
 
 
@@ -137,7 +146,6 @@ def convert_markdown(input_file, output_file):
         for line in file:
             parse_line(line, state)
 
-    # Close any remaining open blocks
     if state["in_ul"]:
         state["buffer"].append("</ul>")
     if state["in_ol"]:
