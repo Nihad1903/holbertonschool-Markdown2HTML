@@ -71,7 +71,7 @@ def parse_paragraph(line, state):
 
 def close_paragraph(state):
     if state["paragraph_lines"]:
-        lines = [apply_inline_formatting(line.strip()) 
+        lines = [apply_inline_formatting(line.strip())
                  for line in state["paragraph_lines"]]
         joined = "<br/>\n    ".join(lines)
         paragraph = f"<p>\n    {joined}\n</p>"
