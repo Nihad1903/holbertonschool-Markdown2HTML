@@ -6,6 +6,7 @@ import os
 import re
 import hashlib
 
+
 def markdownparser():
     if len(sys.argv) < 3:
         output = "Usage: ./markdown2html.py README.md README.html"
@@ -116,19 +117,19 @@ def parse_line(line, state):
 
 def apply_inline_formatting(text):
     text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
-    
+
     text = re.sub(r'__(.+?)__', r'<em>\1</em>', text)
-    
+
     def md5_replacer(match):
         content = match.group(1)
         return hashlib.md5(content.encode()).hexdigest()
-    
+
     text = re.sub(r'\[\[(.+?)\]\]', md5_replacer, text)
 
     def remove_c(match):
         content = match.group(1)
         return re.sub(r'[cC]', '', content)
-    
+
     text = re.sub(r'\(\((.+?)\)\)', remove_c, text)
 
     return text
