@@ -26,6 +26,7 @@ def parse_heading(line):
     num = len(line) - len(line.lstrip('#'))
     if 1 <= num <= 6 and line[num:num+1] == " ":
         text = line[num:].strip()
+        text = apply_inline_formatting(text)
         return f"<h{num}>{text}</h{num}>"
     return None
 
@@ -36,6 +37,7 @@ def parse_unordered(line, state):
             state["buffer"].append("<ul>")
             state["in_ul"] = True
         item = line[2:].strip()
+        item = apply_inline_formatting(item)
         state["buffer"].append(f"<li>{item}</li>")
         return True
     else:
@@ -45,13 +47,13 @@ def parse_unordered(line, state):
     return False
 
 
-# Placeholder for future features
 def parse_ordered(line, state):
     if line.startswith("* "):
         if not state["in_ol"]:
             state["buffer"].append("<ol>")
             state["in_ol"] = True
         item = line[2:].strip()
+        item = apply_inline_formatting(item)
         state["buffer"].append(f"<li>{item}</li>")
         return True
     else:
@@ -69,9 +71,8 @@ def parse_paragraph(line, state):
 
 def close_paragraph(state):
     if state["paragraph_lines"]:
-        # Join lines with <br /> if more than one line
-        lines = [line.strip() for line in state["paragraph_lines"]]
-        joined = "<br />\n    ".join(lines)
+        lines = [apply_inline_formatting(line.strip()) for line in state["paragraph_lines"]]
+        joined = "<br/>\n    ".join(lines)
         paragraph = f"<p>\n    {joined}\n</p>"
         state["buffer"].append(paragraph)
         state["paragraph_lines"] = []
@@ -113,6 +114,14 @@ def parse_line(line, state):
 
     # If not any known syntax, assume it's paragraph content
     parse_paragraph(stripped, state)
+
+
+def apply_inline_formatting(text):
+    # Apply bold (**text**) first
+    text = re.sub(r'\*\*(.+?)\*\*', r'<b>\1</b>', text)
+    # Apply emphasis (__text__)
+    text = re.sub(r'__(.+?)__', r'<em>\1</em>', text)
+    return text
 
 
 def convert_markdown(input_file, output_file):
